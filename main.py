@@ -4,7 +4,7 @@ import discord
 
 load_dotenv()
 
-TOKEN = environ.get('TOKEN')
+TOKEN = environ.get('ABBOT_TOKEN')
 
 client = discord.Client()
 
