@@ -3,6 +3,7 @@ from os import environ
 from requests import get
 from random import choice
 from replit import db
+from keep_alive import keep_alive
 
 client = discord.Client()
 
@@ -26,6 +27,16 @@ def get_quotes():
   quote_info = res.json()[0]
   return f"{quote_info['q']} \n\t- {quote_info['a']}"
 
+def nasa_today():
+  try:
+    res = get(f"https://api.nasa.gov/planetary/apod?api_key={environ['NASA']}")
+    # print(res.json())
+    data = res.json()
+    return data["title"],data["date"],data["explanation"]
+  except:
+    return "Error with NASA API(Limit Exceeded)"
+
+
 def update_encouragements(enc_msg):
   # if encouragements key already there in db.keys() then just append
   if ("encouragements" in db.keys()):
@@ -34,14 +45,6 @@ def update_encouragements(enc_msg):
     db["encouragements"] = encouragements
   else:
     db['encouragements']= [enc_msg]
-
-# def update_encouragements(encouraging_message):
-#   if "encouragements" in db.keys():
-#     encouragements = db["encouragements"]
-#     encouragements.append(encouraging_message)
-#     db["encouragements"] = encouragements
-#   else:
-#     db["encouragements"] = [encouraging_message]
 
 def delete_encouragements(index):
   encouragements = db["encouragements"]
@@ -73,16 +76,23 @@ async def on_message(msg):
     if ("encouragements" in db.keys()):
       encouragements = db["encouragements"].value
       await msg.channel.send(f"Encouragements {encouragements}")
+  if (message.startswith("$nasa")):
+    title,date,desc = nasa_today()
+    await msg.channel.send(f"{date}\n\"{title}\"\n\t{desc}")
     
+  
   if (message.startswith("$del")):
     encouragements = []
     if ("encouragements" in db.keys()):
       index = int(message.split("$del")[1].replace(" ",""))
       delete_encouragements(index)
-      await msg.channel.send(db["encouragements"])
+      await msg.channel.send(db["encouragements"].value)
     else:
       await msg.channel.send(encouragements)
-      
+  
+  if (message.startswith("$info")):
+    await msg.channel.send("Available Commands:\n $inspire\t$nasa\t$new\t$del\t$show")
+    
     
   if ("encouragements" in db.keys()):
     global happy_response
@@ -94,4 +104,6 @@ async def on_message(msg):
   if message.startswith("$inspire"):
     await msg.channel.send(get_quotes())
 
+
+keep_alive()
 client.run(environ['SAMPLE_BOT_TOKEN'])
