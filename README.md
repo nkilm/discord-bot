@@ -7,6 +7,10 @@
 - Register common events - on_ready, on_message
 - client.run(TOKEN) 
 
+## Requirements
+![](https://img.shields.io/badge/-discord-%23404eed "pip install discord")
+![](https://img.shields.io/badge/-python--dotenv-%23e4d04b "pip install python-dotenv")
+
 ## Minimal Code
 
 ```python
